@@ -57,7 +57,7 @@ class Particle():
         
         # calculate momenta basis functions
         momenta = np.arange(-self.nmax,self.nmax+1) * np.pi / self.length
-        momenta = np.delete(momenta, len(momenta)/2)
+        momenta = np.delete(momenta, int(len(momenta)/2))
         self.momenta = momenta
 
     def generate_hamiltonian(self, potential=None):

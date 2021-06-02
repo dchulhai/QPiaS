@@ -92,6 +92,7 @@ class Game():
 
     def resource_path(self, relative_path):
         """ Get absolute path to resource, works for dev and for PyInstaller """
+        # split relative path as needed
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS
             base_path = sys._MEIPASS
@@ -398,13 +399,11 @@ class Game():
     
         # figure out ideal font size
         size = 40
-        keyfont = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                        'fonts/ccr.ttf'), size)
+        keyfont = pygame.font.Font(self.resource_path('fonts/ccr.ttf'), size)
         word_surface = keyfont.render('[RIGHT]', True, (0,0,0))
         word_width, word_height = word_surface.get_size()
         size = int(min(max_width * 40 / word_width, max_height * 40 / word_height))
-        keyfont = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                        'fonts/ccr.ttf'), size)
+        keyfont = pygame.font.Font(self.resource_path('fonts/ccr.ttf'), size)
 
         # get starting y-position of the buttons   
         button_y = self.height * 0.91
