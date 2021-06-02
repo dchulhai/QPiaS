@@ -5,9 +5,14 @@ Quantum Particle-in-a-Sandbox
 -----------------------------
 (c) Dhabih V. Chulhai, 2021
 '''
-from .qpias import start_game
-from .game import Game
-from .particle import Particle
-from .stage import Stage
-from ._version import __version__
+from . import adventure
+from . import buttons
+from . import game
+from . import menu
+from . import particle
+from . import sandbox
+from . import stage
+from . import title
+from . import _version
 
+__package__ = 'qpias'

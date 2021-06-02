@@ -4,7 +4,7 @@ import sys
 import os
 import numpy as np
 
-from .buttons import Buttons
+from qpias.buttons import Buttons
 
 
 class Menu():
@@ -83,9 +83,9 @@ class Menu():
 def main_menu(game):
     '''The main menu in pygame'''
 
-    from .title import title_screen
-    from .adventure import adventure_mode
-    from .sandbox import sandbox_information
+    from qpias.title import title_screen
+    from qpias.adventure import adventure_mode
+    from qpias.sandbox import sandbox_information
 
     # show the title screen
     title_screen(game)
@@ -102,7 +102,7 @@ def main_menu(game):
 
 def potentials_menu(game):
 
-    from .stage import Stage
+    from qpias.stage import Stage
 
     particle_box = Stage(game, None)
     harmonic_oscillator = Stage(game, game.harmonic_oscillator_potential)

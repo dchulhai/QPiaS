@@ -47,14 +47,14 @@ class Game():
         pygame.display.set_caption('Quantum Particle-in-a-Sandbox')
 
         # initialize font objects
-        self.menu_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/chintzy.ttf'), self.menu_font_size)
-        self.adventure_menu_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/chintzy.ttf'), self.adventure_menu_font_size)
-        self.text_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/ccr.ttf'), self.text_font_size)
-        self.top_bar_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/instruction.ttf'), self.top_bar_font_size)
+        self.menu_font = pygame.font.Font(self.resource_path('fonts/chintzy.ttf'),
+                self.menu_font_size)
+        self.adventure_menu_font = pygame.font.Font(
+                self.resource_path('fonts/chintzy.ttf'), self.adventure_menu_font_size)
+        self.text_font = pygame.font.Font(self.resource_path('fonts/ccr.ttf'),
+                self.text_font_size)
+        self.top_bar_font = pygame.font.Font(
+                self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
 
         # set up game timer
         self.time = 0
@@ -89,6 +89,16 @@ class Game():
         self._show_levels = [True] * 11
         self._levels_available = 11
 
+
+    def resource_path(self, relative_path):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.dirname(__file__)
+
+        return os.path.join(base_path, relative_path)
 
     @property
     def _all_level_options(self):
@@ -332,19 +342,18 @@ class Game():
 
         # change font sizes
         self.menu_font_size = int(40 * min(self.width, self.height) / 600.)
-        self.menu_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/chintzy.ttf'), self.menu_font_size)
         self.adventure_menu_font_size = int(26 * min(self.width, self.height) / 600.)
-        self.adventure_menu_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/chintzy.ttf'), self.adventure_menu_font_size)
-
         self.text_font_size = int(40 * min(self.width, self.height) / 600.)
-        self.text_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/ccr.ttf'), self.text_font_size)
-
         self.top_bar_font_size = int(25 * self.height / 600.)
-        self.top_bar_font = pygame.font.Font(os.path.join(os.path.dirname(__file__),
-                'fonts/instruction.ttf'), self.top_bar_font_size)
+
+        self.menu_font = pygame.font.Font(self.resource_path('fonts/chintzy.ttf'),
+                self.menu_font_size)
+        self.adventure_menu_font = pygame.font.Font(
+                self.resource_path('fonts/chintzy.ttf'), self.adventure_menu_font_size)
+        self.text_font = pygame.font.Font(self.resource_path('fonts/ccr.ttf'),
+                self.text_font_size)
+        self.top_bar_font = pygame.font.Font(
+                self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
 
     def blit_texts(self, texts, color=(245,245,245)):
         '''

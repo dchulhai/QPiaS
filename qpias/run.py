@@ -1,7 +1,7 @@
-##!/usr/bin/env python3
+#!/usr/bin/env python3
 
-from .game import Game
-from .menu import main_menu
+from qpias.game import Game
+from qpias.menu import main_menu
 
 def start_game(dpi=96, width=800, height=600, dt=1e-4, fps=60):
 

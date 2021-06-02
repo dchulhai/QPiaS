@@ -6,7 +6,7 @@ import numpy as np
 import scipy as sp
 from scipy import interpolate
 
-from .stage import Stage
+from qpias.stage import Stage
 
 def sandbox_information(game):
 

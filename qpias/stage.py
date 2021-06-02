@@ -6,7 +6,7 @@ import numpy as np
 import scipy as sp
 from scipy import interpolate
 
-from .particle import Particle
+from qpias.particle import Particle
 
 class Stage():
 

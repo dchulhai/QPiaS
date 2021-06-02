@@ -1,13 +1,14 @@
-import pygame
-from pygame.locals import *
 import sys 
 import os
+
+import pygame
+from pygame.locals import *
 import numpy as np
 import scipy as sp
 from scipy import interpolate
 
-from .stage import Stage
-from .menu import Menu
+from qpias.stage import Stage
+from qpias.menu import Menu
 
 def adventure_mode(game):
 
