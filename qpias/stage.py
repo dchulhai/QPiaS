@@ -1,10 +1,6 @@
 import pygame
-from pygame.locals import *
-import sys 
-import os
+from pygame.locals import QUIT, KEYDOWN, MOUSEBUTTONUP, VIDEORESIZE
 import numpy as np
-import scipy as sp
-from scipy import interpolate
 
 from qpias.particle import Particle
 
@@ -89,7 +85,7 @@ class Stage():
                     game.quit()
     
                 # check key events
-                elif event.type == KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
+                elif event.type == KEYDOWN or event.type == MOUSEBUTTONUP:
     
                     # get selection
                     selection = self.get_selection(event)
@@ -179,7 +175,7 @@ class Stage():
                             pass
 
                 # check if user changed the video size
-                elif event.type == pygame.VIDEORESIZE:
+                elif event.type == VIDEORESIZE:
                     game.resize(event.w, event.h)
                     game.screen.fill((255,255,255))
    
@@ -190,7 +186,6 @@ class Stage():
             # update and tick clock
             pygame.display.flip()
             game.clock.tick(game.fps)
-
 
         # reset the game level parameters
         game._level_reset()

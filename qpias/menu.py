@@ -1,8 +1,5 @@
 import pygame
-from pygame.locals import *
-import sys
-import os
-import numpy as np
+from pygame.locals import QUIT, VIDEORESIZE, KEYDOWN, MOUSEBUTTONUP
 
 from qpias.buttons import Buttons
 
@@ -42,7 +39,7 @@ class Menu():
                     self.game.quit()
 
                 # check if user changed the video size
-                if event.type == pygame.VIDEORESIZE:
+                if event.type == VIDEORESIZE:
                     self.game.resize(event.w, event.h)
 
                 # check key events
@@ -58,7 +55,7 @@ class Menu():
                         self.buttons.select_previous()
 
                 # run function from selected option
-                if ( event.type == pygame.MOUSEBUTTONUP or
+                if ( event.type == MOUSEBUTTONUP or
                    (event.type == KEYDOWN and event.key == pygame.K_RETURN)):
 
                     if self.button_funcs[self.buttons.selected] == 'EXIT':
@@ -93,7 +90,7 @@ def main_menu(game):
     options = [['ADVENTUDE MODE', adventure_mode],
                ['MODEL POTENTIALS', potentials_menu],
                ['SANDBOX MODE', sandbox_information],
-               ['HOW TO PLAY', how_to_menu],
+               ['ABOUT', about_menu],
                ['QUIT', game.quit]]
 
     menu = Menu(game, options)
@@ -121,25 +118,48 @@ def potentials_menu(game):
     menu.run()
 
 
-def how_to_menu(game):
+def about_menu(game):
 
-    background_color = game.get_background_color
+    background_colors = []
+    background_colors.append(game.get_background_color)
 
     welcome_text = ("Welcome to Quantum Particle-in-a-Sandbox, where "
                     "you explore what happens to a 1-dimensional "
-                    "quantum mechanical wave function.")
+                    "quantum mechanical wave function.\n\n"
+                    "Quantum Particle-in-a-Sanbox was developed by Dhabih "
+                    "V. Chulhai (chulhaid@uindy.edu) (c) 2021 and "
+                    "may be used according to the Apache Licence v 2.0")
+
+    instruction_text1 = ("Press [ESC] to return to the previous screen "
+                        " or press any other key for more instruction.")
+
+    instruction_text2 = ("Press [ESC] to return to the previous screen.")
 
     keys_text = ("Keys:\n"
                  "[Esc] - Return to previous screen.\n"
                  "[Right Arrow] - Speed up animation.\n"
                  "[Left Arrow] - Slow down animation.\n"
-                 "[Up Arrow] - Increase energy of wave function.\n"
-                 "[Down Arrow] - Decrease energy of wave function.\n"
-                 "[g] - Collapse to the ground-state wave function.\n"
-                 "[x] - Collapse to a position wave function.\n"
-                 "[p] - Collapse to a momentum wave function.\n")
+                 "[Up Arrow] - Collapse and increase energy.\n"
+                 "[Down Arrow] - Collapse and decrease energy.\n"
+                 "[G] - Collapse to the ground-state.\n"
+                 "[X] - Collapse to a position.\n"
+                 "[P] - Collapse to a momentum.\n")
 
-    texts = [welcome_text, keys_text]
+    modes_text = ("ADVENTURE MODE - achieve certain goals by collapsing "
+                  "your particle's energy (using [UP] or [DOWN]) to match the "
+                  "green horizontal region or by collapsing your particle's "
+                  "position (using [X] or [P]) to match the green vertical region.\n\n"
+                  "MODEL POTENTIALS - explore the wave function in these commonly used "
+                  "model potentials.\n\n"
+                  "SANDBOX MODE - draw your own potential then see how the quantum "
+                  " wave function evolves in this potential.")
+
+    texts = [[welcome_text, instruction_text1],
+             [keys_text, instruction_text1],
+             [modes_text, instruction_text2]]
+
+    # to keep tract of which informational screen is being shown
+    current_layer = 0
 
     in_menu = True
     while in_menu:
@@ -152,18 +172,37 @@ def how_to_menu(game):
                 game.quit()
 
             # check if user changed the video size
-            if event.type == pygame.VIDEORESIZE:
+            if event.type == VIDEORESIZE:
                 game.resize(event.w, event.h)
 
             # check key events
-            if event.type == KEYDOWN:
+            if event.type == KEYDOWN or event.type == MOUSEBUTTONUP:
 
-                if event.key == pygame.K_ESCAPE: in_menu = False
+                # check for the [ESC] event
+                escape = False
+                try:
+                    if event.key == pygame.K_ESCAPE:
+                        escape = True
+                except Exception:
+                    pass
+
+                # advance screen or go back
+                if escape:
+                    if current_layer == 0:
+                        in_menu = False
+                    else:
+                        current_layer -= 1
+                else:
+                    if current_layer < len(texts)-1:
+                        current_layer += 1
+                    #if current_layer > 1: in_menu = False
 
         # fill screen with a color
-        game.screen.fill(background_color)
+        if current_layer == len(background_colors):
+            background_colors.append(game.get_background_color)
+        game.screen.fill(background_colors[current_layer])
 
-        game.blit_texts(texts)
+        game.blit_texts(texts[current_layer])
 
         # updates the frames of the game 
         pygame.display.flip()

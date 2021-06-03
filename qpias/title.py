@@ -1,7 +1,6 @@
 import pygame
-from pygame.locals import *
-import sys 
-import os
+from pygame.locals import QUIT, KEYDOWN, MOUSEBUTTONUP, VIDEORESIZE
+from pygame.locals import SRCALPHA, BLEND_RGBA_MULT
 import numpy as np
 
 
@@ -76,11 +75,11 @@ def title_screen(game):
                 game.quit()
 
             # proceed to the next screen on keypress
-            if event.type == KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
+            if event.type == KEYDOWN or event.type == MOUSEBUTTONUP:
                 running = False
 
             # check if user changed the video size
-            if event.type == pygame.VIDEORESIZE:
+            if event.type == VIDEORESIZE:
                 game.resize(event.w, event.h)
                 game.screen.fill(background_color)
                 font, instruction, word_origins, letter_origins, l_h = resize(game)
@@ -101,10 +100,10 @@ def title_screen(game):
         # animate the "press any key to continue..."
         alpha = abs(int(np.cos(theta) * 255))
         ins_w, ins_h = instruction.get_size()
-        alpha_img = pygame.Surface((ins_w, ins_h), pygame.SRCALPHA)
+        alpha_img = pygame.Surface((ins_w, ins_h), SRCALPHA)
         alpha_img.fill((255, 255, 255, alpha))
         ins_copy = instruction.copy()
-        ins_copy.blit(alpha_img, (0,0), special_flags=pygame.BLEND_RGBA_MULT)
+        ins_copy.blit(alpha_img, (0,0), special_flags=BLEND_RGBA_MULT)
         game.screen.blit(ins_copy, (game.width/2 - ins_w/2, (8.5*game.height/9)
             - ins_h/2))
 

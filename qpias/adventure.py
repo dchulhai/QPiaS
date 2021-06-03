@@ -1,11 +1,4 @@
-import sys 
-import os
-
-import pygame
-from pygame.locals import *
 import numpy as np
-import scipy as sp
-from scipy import interpolate
 
 from qpias.stage import Stage
 from qpias.menu import Menu
@@ -14,28 +7,29 @@ def adventure_mode(game):
 
     options = [['1 - Energy tutorial', energy_tutorial],
                ['2 - Position tutorial', position_tutorial],
-               ['3 - Momentum tutorial', None],
+               ['3 - Momentum tutorial', momentum_tutorial],
                ['4 - Break a bond', bond_breaking],
                ['5 - Tunneling', tunneling],
                ["6 - Schrodinger's cat/particle", schrodinger_cat],
                ['7 - Climb up the stairs', climb_the_stairs],
                ['8 - Jump down the well', down_the_well],
-               ['9 - ???', cliff],
+               ['9 - ???', None],
                ['10 - ???', None],
                ['Back', 'EXIT']]
 
     menu = Menu(game, options, show=game._show_levels, font=game.adventure_menu_font)
     menu.run()
 
-
 def energy_tutorial(game):
 
     goal = {'energy': [1979.9, 2262.7]}
     level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'G']
 
-    events = [('TIME', 0, ['Welcome to the energy tutorial!',
-                            'On this screen, you will see a particle in '
-                             'a harmonic oscialltor potential.']),
+    events = [('TIME', 0, ["Welcome to the energy tutorial! "
+                           "On this screen, you will see a particle in "
+                           "a harmonic oscialltor potential. "
+                           "Your goal is to collapse the particle's energy "
+                           "to match the green bar."]),
               ('TIME', 1, ['Pretty boring, right? Try pressing the [RIGHT] '
                            'key to speed things up.']),
               ('RIGHT', 3, ['The [RIGHT] and [LEFT] keys will speed up or '
@@ -43,14 +37,14 @@ def energy_tutorial(game):
               ('TIME', 1, ["This wave function still doesn't do much "
                            "because it's a 'stationary state'. 'Stationary' "
                            "means that its properties don't change with time."]),
-              ('TIME', 1, ["We can see the properties of this particle in the bar "
+              ('TIME', 1, ["We can see the properties of this particle in the region "
                            "above the graph."]),
               ('TIME', 1, ["We can change this stationary state to another stationary "
                            "state by pressing the [UP] or [DOWN] keys."]),
               ('UP', 2, ["[UP] and [DOWN] correspond to absorbing or emitting "
                          "a discrete amount of energy. "
-                         "To complete the level, try to match your particle's "
-                         "energy with the green bar."]),
+                         "To complete the level, try to collapse your particle's "
+                         "energy to within the green region."]),
               ]
 
     stage = Stage(game, game.harmonic_oscillator_potential,
@@ -107,12 +101,35 @@ def position_tutorial(game):
             game._show_levels[game._levels_available-1] = True
 
 
+def momentum_tutorial(game):
+
+    goal = {'energy': [1750, 2100]} 
+    level_options = ['ESC', 'LEFT', 'RIGHT', 'DOWN', 'P', 'G']
+    events = [('TIME', 0, ["Let's try to collapse the energy (by pressing "
+                           "[DOWN]) to match the energy of the green region. "
+                           "However, you can only increase your energy by "
+                           "collapsing your momentum with [P]!"])]
+
+    potential = np.abs(0.5 - np.linspace(0,1,1001)) * 5000
+    stage = Stage(game, potential, initial_conditions={'n': 1},
+        goal=goal, level_options=level_options, events=events)
+    completed = stage.run()
+
+    # make the next stage available
+    if completed:
+        if game._levels_available == 2:
+            game._levels_available += 1
+            game._show_levels[game._levels_available-1] = True
+
+
 def bond_breaking(game):
 
     goal = {'position': [0.8, 1]}
     level_options = game._all_level_options
     events = [('TIME', 0, ["Let's try to break a chemical bond using "
-                           "a Morse potential!"])]
+                           "a Morse potential! Collapse the position "
+                           "of the particle such that it is far away from the "
+                           "source of the Morse potential"])]
 
     stage = Stage(game, game.morse_potential, initial_conditions={'n': 1},
         goal=goal, level_options=level_options, events=events)

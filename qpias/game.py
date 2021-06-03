@@ -1,28 +1,23 @@
 #!/usr/bin/env python3
 
-import pygame
-from pygame.locals import *
-import matplotlib
+import os
+import sys
 
+import pygame
+from pygame.locals import QUIT, KEYDOWN, MOUSEBUTTONUP
+import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
-
 import numpy as np
-from numpy import linalg
 import scipy as sp
-from scipy import linalg, integrate
-from scipy.integrate import simps
-
-import os
-import sys
 
 class Game():
     '''
     A class to store all the information about the game state.
     '''
 
-    def __init__(self, dpi=96, width=800, height=600, dt=1e-4, fps=60):
+    def __init__(self, dpi=96, width=800, height=600, dt=1e-4, fps=20):
         '''
         Initializes the game state.
         '''
@@ -86,7 +81,7 @@ class Game():
 
         # ADVENTURE MODE SPECIFIC VARIABLES
         self._level_reset()
-        self._show_levels = [True] * 11
+        self._show_levels = [True] * 8 + [False] * 2 + [True]
         self._levels_available = 11
 
 

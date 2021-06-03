@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 
-import pygame
-from pygame.locals import *
-import matplotlib
-
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-import matplotlib.backends.backend_agg as agg
-
 import numpy as np
 from numpy import linalg
 import scipy as sp
-from scipy import linalg, integrate, optimize
-from scipy.integrate import simps
+from scipy import linalg, integrate
 
 
 class Particle():
@@ -94,7 +85,8 @@ class Particle():
             ni = i+1 
             for j in range(i, self.nmax):
                 nj = j+1 
-                V[i,j] = ((2/self.length) * simps(np.sin(ni*np.pi*self.x/self.length)
+                V[i,j] = ((2/self.length) * sp.integrate.simps(np.sin(
+                          ni*np.pi*self.x/self.length)
                        * np.sin(nj*np.pi*self.x/self.length) * potential, self.x)) 
                 V[j,i] = V[i,j]
         self.V = V

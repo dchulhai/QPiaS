@@ -1,7 +1,6 @@
 import pygame
-from pygame.locals import *
-import sys 
-import os
+from pygame.locals import QUIT, VIDEORESIZE, KEYDOWN, MOUSEBUTTONUP
+from pygame.locals import MOUSEMOTION
 import numpy as np
 import scipy as sp
 from scipy import interpolate
@@ -35,7 +34,7 @@ def sandbox_information(game):
                 game.quit()
 
             # check if user changed the video size
-            if event.type == pygame.VIDEORESIZE:
+            if event.type == VIDEORESIZE:
                 game.resize(event.w, event.h)
 
             # check key events
@@ -46,7 +45,7 @@ def sandbox_information(game):
                 else:
                     sandbox_potential(game)
 
-            if event.type == pygame.MOUSEBUTTONUP:
+            if event.type == MOUSEBUTTONUP:
                 sandbox_potential(game)
 
         # fill screen with a color
@@ -88,7 +87,7 @@ def sandbox_potential(game):
                 game.quit()
 
             # check if user changed the video size
-            if event.type == pygame.VIDEORESIZE:
+            if event.type == VIDEORESIZE:
                 game.resize(event.w, event.h)
                 game.screen.fill((255,255,255))
                 pen = int(game.width / 50.)
@@ -123,7 +122,7 @@ def sandbox_potential(game):
                     game.screen.fill((255,255,255))
 
             # check for mouse motion
-            if event.type == pygame.MOUSEMOTION:
+            if event.type == MOUSEMOTION:
                 if event.buttons[0]: # left mouse button:
 
                     potential[np.where((x>=(event.pos[0]-pen/2)/game.width)&
