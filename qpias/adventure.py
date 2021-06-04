@@ -174,7 +174,7 @@ def schrodinger_cat(game):
                            "necessary!)"])]
 
     potential = np.zeros((1001))
-    potential[400:601] = 10000
+    potential[400:601] = 50000
 
     stage = Stage(game, potential, initial_conditions={'n': 1}, 
         goal=goal, level_options=level_options, events=events)

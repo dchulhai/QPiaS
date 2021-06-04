@@ -194,21 +194,23 @@ class Game():
         indx = np.argsort(-prob)
 
         # plot the highest 5 wave functions
-        for i in range(9,-1,-1):
+        for i in range(len(prob)):
 
+            # get index and linewidth
             idx = indx[i]
+            lw = self.lw * 4 * np.sqrt(prob[idx])
 
+            # if the probability is small, don't show it
+            if lw < 0.5: break
+
+            # plot the axis
             energy = particle.energies[idx] * scale
+            ax.plot(x, np.zeros_like(x)+energy, 'k-', lw=lw*0.3/4)
 
-            ax.plot(x, np.zeros_like(x)+energy,
-                'k-', lw=self.lw*0.3*prob[idx])
-
+            # get and plot the wave function
             wf = C[idx] * particle.wave_functions[idx]
-
-            ax.plot(x, wf.imag+energy, color='tab:orange',
-                lw=self.lw*4*prob[idx])
-            ax.plot(x, wf.real+energy, color='tab:red',
-                lw=self.lw*4*prob[idx])
+            ax.plot(x, wf.imag+energy, color='tab:orange', lw=lw)
+            ax.plot(x, wf.real+energy, color='tab:red', lw=lw)
 
 
     def draw_top_bar(self, particle, psi, average_energy, coefficient=None):
@@ -395,7 +397,8 @@ class Game():
                 self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
 
         # get button sizes
-        size = int(min(self.height*0.075, self.width/18))
+        size = int(min(self.height*0.09, self.width/11))
+        self.button_spacing = (self.width - size*9) / 9
 
         # initialize the buttions
 
@@ -492,7 +495,7 @@ class Game():
                 key not in self._level_options): continue
 
             # get button position
-            button_x = (i * 2 + 0.5) * self.button_size
+            button_x = (i + 0.5) * self.button_spacing + i * self.button_size
 
             # check if mouse is over button
             if ((button_x <= mouse[0] <= button_x+self.button_size) and
