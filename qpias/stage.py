@@ -15,7 +15,7 @@ class Stage():
         # set goal and level options
         if level_options is None:
             self.level_options = ['ESC', 'LEFT', 'RIGHT', 'UP',
-                'DOWN', 'X', 'P', 'G']
+                'DOWN', 'X', 'P', 'G', 'S']
         else:
             self.level_options = level_options
         game._level_options = self.level_options
@@ -167,6 +167,13 @@ class Stage():
                     elif selection == 'ESC':
                         self.running = False
 
+                    # if the S key is pressed - change to/from superposition mode
+                    elif selection == 'S':
+                        if game.superposition_mode:
+                            game.superposition_mode = False
+                        else:
+                            game.superposition_mode = True
+
                     # count occurances of a key
                     if selection is not None:
                         try:
@@ -211,6 +218,7 @@ class Stage():
         keys = {'X': pygame.K_x,
                 'P': pygame.K_p,
                 'G': pygame.K_g,
+                'S': pygame.K_s,
                 'LEFT': pygame.K_LEFT,
                 'RIGHT': pygame.K_RIGHT,
                 'UP': pygame.K_UP,

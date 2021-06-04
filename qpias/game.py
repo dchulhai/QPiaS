@@ -79,6 +79,9 @@ class Game():
         # how long a wave function collapse takes
         self._collapse_time = 0.75 # in seconds?
 
+        # show superposition waves
+        self.superposition_mode = False
+
         # ADVENTURE MODE SPECIFIC VARIABLES
         self._level_reset()
         self._show_levels = [True] * 8 + [False] * 2 + [True]
@@ -98,7 +101,7 @@ class Game():
 
     @property
     def _all_level_options(self):
-        return ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'X', 'P', 'G'].copy()
+        return ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'X', 'P', 'G', 'S'].copy()
 
     def plot_wave_function(self, particle, psi, average_energy=None):
         '''
@@ -125,9 +128,6 @@ class Game():
         ax.set_ylim((0,ymax))
         ax.set_xlim((x[0],x[-1]))
 
-        # plot the x-axis
-        ax.plot(x, np.zeros_like(x)+yshift, color='k', lw=self.lw*0.3)
-
         # scale and plot the potential surface
         scaled_potential = potential * ymax / particle._emax
         ax.fill_between(x, scaled_potential, 0, color='#646464')
@@ -148,18 +148,28 @@ class Game():
  
         # prints the expectation values and uncertainties
         self.draw_top_bar(particle, psi, average_energy)
+
+        if self.superposition_mode:
+
+            self.plot_superposition(particle, ymax)
+
+        else:
  
-        # plot the real and imaginary parts of the wave function
-        ax.plot(x, psi.real+yshift, color='tab:red', lw=self.lw*2,
-            label='$\\mathrm{Re}[\\Psi]$')
-        ax.plot(x, psi.imag+yshift, color='gold', lw=self.lw*2,
-            label='$\\mathrm{Im}[\\Psi]$')
+            # plot the x-axis
+            ax.plot(x, np.zeros_like(x)+yshift, color='k', lw=self.lw*0.3)
+
+            # plot the real and imaginary parts of the wave function
+            ax.plot(x, psi.imag+yshift, color='tab:orange', lw=self.lw*4,
+                label='$\\mathrm{Im}[\\Psi]$')
+            ax.plot(x, psi.real+yshift, color='tab:red', lw=self.lw*4,
+                label='$\\mathrm{Re}[\\Psi]$')
 
         # plot the probability density function
         ax.fill_between(x, (psi*psi.conjugate()).real+yshift,
-            yshift, color='tab:blue', lw=self.lw*2, alpha=0.8)
-        ax.fill_between(x, yshift-(psi*psi.conjugate()).real,
-            yshift, color='tab:blue', lw=self.lw*2, alpha=0.8)
+            yshift-(psi*psi.conjugate()).real,
+            color='tab:blue', lw=self.lw*4, alpha=0.8)
+#        ax.fill_between(x, yshift-(psi*psi.conjugate()).real,
+#            yshift, color='tab:blue', lw=self.lw*4, alpha=0.8)
 
         # plot the graph to the surface/screen
         canvas.draw()
@@ -168,6 +178,37 @@ class Game():
         size = canvas.get_width_height()
         surf = pygame.image.fromstring(raw_data, size, "RGB")
         self.screen.blit(surf, self.plot_origin)
+
+
+    def plot_superposition(self, particle, ymax, C=None):
+
+        ax = self.ax
+        x  = particle.x
+        scale = ymax / particle._emax
+
+        # get coefficients and probabilities
+        if C is None: C = particle.Ct
+        prob = (C.conjugate()*C).real
+
+        # sort the probabilities
+        indx = np.argsort(-prob)
+
+        # plot the highest 5 wave functions
+        for i in range(9,-1,-1):
+
+            idx = indx[i]
+
+            energy = particle.energies[idx] * scale
+
+            ax.plot(x, np.zeros_like(x)+energy,
+                'k-', lw=self.lw*0.3*prob[idx])
+
+            wf = C[idx] * particle.wave_functions[idx]
+
+            ax.plot(x, wf.imag+energy, color='tab:orange',
+                lw=self.lw*4*prob[idx])
+            ax.plot(x, wf.real+energy, color='tab:red',
+                lw=self.lw*4*prob[idx])
 
 
     def draw_top_bar(self, particle, psi, average_energy, coefficient=None):
@@ -253,6 +294,8 @@ class Game():
         animating = True
         t = 0
         tmax = self._collapse_time
+
+        C_old = np.copy(C_old)
         while animating:
 
             self.screen.fill((255,255,255))
@@ -351,6 +394,39 @@ class Game():
         self.top_bar_font = pygame.font.Font(
                 self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
 
+        # get button sizes
+        size = int(min(self.height*0.075, self.width/18))
+
+        # initialize the buttions
+
+        button_images = {}
+        keys = {'ESC':      "images/back.png",
+                'ESC_S':    "images/back_s.png",
+                'LEFT':     "images/rw.png",
+                'LEFT_S':   "images/rw_s.png",
+                'RIGHT':    "images/ff.png",
+                'RIGHT_S':  "images/ff_s.png",
+                'UP':       "images/up.png",
+                'UP_S':     "images/up_s.png",
+                'DOWN':     "images/down.png",
+                'DOWN_S':   "images/down_s.png",
+                'X':        "images/x.png",
+                'X_S':      "images/x_s.png",
+                'P':        "images/p.png",
+                'P_S':      "images/p_s.png",
+                'G':        "images/g.png",
+                'G_S':      "images/g_s.png",
+                'S':        "images/superposition.png",
+                'S_S':      "images/superposition_s.png",
+                'S_ON':     "images/superposition_on.png"}
+
+        for key in keys:
+            temp = pygame.image.load(self.resource_path(keys[key]))
+            button_images[key] = pygame.transform.scale(temp, (size, size))
+        self.button_images = button_images
+        self.button_size = size
+
+
     def blit_texts(self, texts, color=(245,245,245)):
         '''
         Adds a list of texts to the screen.
@@ -386,7 +462,8 @@ class Game():
     def draw_bottom_bar(self):
 
         # keys that can be shown
-        keys = ["[ESC]", "[LEFT]", "[RIGHT]", "[UP]", "[DOWN]", "[X]", "[P]", "[G]"]
+        keys = ["ESC", "LEFT", "RIGHT", "UP", "DOWN", "X", "P",
+                "G", "S"]
     
         # maximum height and width to use
         max_height = self.height * 0.08
@@ -401,7 +478,7 @@ class Game():
         keyfont = pygame.font.Font(self.resource_path('fonts/ccr.ttf'), size)
 
         # get starting y-position of the buttons   
-        button_y = self.height * 0.91
+        button_y = self.height * 0.95 - self.button_size / 2
 
         # get mouse position
         mouse = pygame.mouse.get_pos()
@@ -409,41 +486,41 @@ class Game():
  
         for i in range(len(keys)):
 
+            key = keys[i]
+
             if (self._level_options is not None and
-                keys[i][1:-1] not in self._level_options): continue
+                key not in self._level_options): continue
 
             # get button position
-            button_x = i * self.width / 8 + self.width * 0.1 / 16
+            button_x = (i * 2 + 0.5) * self.button_size
 
             # check if mouse is over button
-            if ((button_x <= mouse[0] <= button_x+self.width*0.1) and
-                (button_y <= mouse[1] <= button_y+self.height*0.08)):
-                button_color = (225,225,100)
-                self._button_selected = keys[i][1:-1]
+            if ((button_x <= mouse[0] <= button_x+self.button_size) and
+                (button_y <= mouse[1] <= button_y+self.button_size)):
+
+                image = self.button_images[key+'_S']
+                self._button_selected = key
+                
             else:
-                button_color = (100,100,100)
 
-            # draw the button
-            border_radius = int(min(self.width*0.1, self.height*0.08)*0.2)
-            rect = pygame.draw.rect(self.screen, button_color, (button_x,
-                button_y, self.width * 0.1, self.height * 0.08),
-                border_radius=border_radius)
+                if key == 'S' and self.superposition_mode:
+                    image = self.button_images['S_ON']
+                elif key == 'S' and not self.superposition_mode:
+                    image = self.button_images['S']
+                else:
+                    image = self.button_images[key]
 
-            word_surface = keyfont.render(keys[i], True, (0,0,0))
-            word_width, word_height = word_surface.get_size()
-            word_x1 = (i+0.5) * self.width / 8 - word_width / 2 - self.width * 0.1 / 8
-            word_x2 = button_x + self.width * 0.05 - word_width / 2
-            word_x = (word_x1 + word_x2)/2
-            word_y = self.height * 0.95 - word_height / 2
-            self.screen.blit(word_surface, (word_x, word_y))
+            self.screen.blit(image, (button_x, button_y))
+
 
     def _level_reset(self):
         self._level_options = ['ESC', 'LEFT', 'RIGHT', 'UP',
-                'DOWN', 'X', 'P', 'G']
+                'DOWN', 'X', 'P', 'G', 'S']
         self._button_selected = None
         self._goal = None
         self.dt = 1e-4
         self.time = 0
+        self.superposition_mode = False
 
     def quit(self, *args, **kwargs):
         pygame.display.quit()

@@ -104,7 +104,7 @@ def position_tutorial(game):
 def momentum_tutorial(game):
 
     goal = {'energy': [1750, 2100]} 
-    level_options = ['ESC', 'LEFT', 'RIGHT', 'DOWN', 'P', 'G']
+    level_options = ['ESC', 'LEFT', 'RIGHT', 'DOWN', 'P', 'G', 'S']
     events = [('TIME', 0, ["Let's try to collapse the energy (by pressing "
                            "[DOWN]) to match the energy of the green region. "
                            "However, you can only increase your energy by "
@@ -143,7 +143,7 @@ def bond_breaking(game):
 def tunneling(game):
 
     goal = {'position': [0.7, 0.9]}
-    level_options = ['ESC', 'LEFT', 'RIGHT', 'X', 'P', 'G']
+    level_options = ['ESC', 'LEFT', 'RIGHT', 'X', 'P', 'G', 'S']
 
     events = [('TIME', 0, ["Let's see it's possible to tunnel "
 
@@ -166,7 +166,7 @@ def tunneling(game):
 def schrodinger_cat(game):
 
     goal = {'position': [0.1, 0.3]}
-    level_options = ['ESC', 'LEFT', 'RIGHT', 'X', 'P', 'G']
+    level_options = ['ESC', 'LEFT', 'RIGHT', 'X', 'P', 'G', 'S']
 
     events = [('TIME', 0, ["Is the particle on the left or on the right? "
                            "You won't know until you collapse the wave function! "
@@ -189,7 +189,7 @@ def schrodinger_cat(game):
 def climb_the_stairs(game):
 
     goal = {'position': [0.85,0.95]}
-    level_options = ['ESC', 'LEFT', 'RIGHT', 'DOWN', 'X', 'P', 'G']
+    level_options = ['ESC', 'LEFT', 'RIGHT', 'DOWN', 'X', 'P', 'G', 'S']
 
     events = [('TIME', 0, ["Can a quantum particle climb stairs?"])]
 
@@ -211,7 +211,7 @@ def climb_the_stairs(game):
 def down_the_well(game):
 
     goal = {'position': [0.47, 0.53]}
-    level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'X', 'P']
+    level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'X', 'P', 'S']
 
     events = [('TIME', 0, ["Sometimes it's difficult to go places where "
                            "the potential is low because you just have too "
