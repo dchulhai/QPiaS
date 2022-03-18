@@ -1,10 +1,25 @@
-# QPiaS
-## Quantum Particle-in-a-Sandbox
+*****
+QPiaS
+*****
 
-### Author
+Quantum Particle-in-a-Sandbox
+
+Author
+======
 Dhabih V. Chulhai (chulhaid@uindy.edu)
 
-### Copyright
+Installing and Running QPiaS
+============================
+
+Download and Installation
+-------------------------
+
+Running QPiaS
+-------------
+
+Copyright
+=========
+
     Quantum Particle-in-a-Sandbox simulates the time-dependent quantum
     mechanical wave function for any arbitrary potential.
     Copyright (C) 2021 Dhabih V. Chulhai
@@ -22,9 +37,10 @@ Dhabih V. Chulhai (chulhaid@uindy.edu)
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-    You may contact me using the email: chulhaid@uindy.edu
-    Or the address:
-    Department of Chemistry,
-    University of Indianapolis
-    1400 E Hanna Ave,
-    Indianapolis, IN 46227
+    | You may contact me using the email: chulhaid@uindy.edu
+    | Or the address:
+    | Department of Chemistry,
+    | University of Indianapolis
+    | 1400 E Hanna Ave,
+    | Indianapolis, IN 46227
+

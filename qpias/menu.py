@@ -127,7 +127,7 @@ def about_menu(game):
                     "you explore what happens to a 1-dimensional "
                     "quantum mechanical wave function.\n\n"
                     "Quantum Particle-in-a-Sanbox was developed by Dhabih "
-                    "V. Chulhai (chulhaid@uindy.edu) (c) 2021 and "
+                    "V. Chulhai (chulhaid@uindy.edu) (c) 2022 and "
                     "may be used according to the Apache Licence v 2.0")
 
     instruction_text1 = ("Press [ESC] to return to the previous screen "
@@ -141,9 +141,11 @@ def about_menu(game):
                  "[Left Arrow] - Slow down animation.\n"
                  "[Up Arrow] - Collapse and increase energy.\n"
                  "[Down Arrow] - Collapse and decrease energy.\n"
-                 "[G] - Collapse to the ground-state.\n"
                  "[X] - Collapse to a position.\n"
-                 "[P] - Collapse to a momentum.\n")
+                 "[P] - Collapse to a momentum.\n"
+                 "[G] - Collapse to the ground-state.\n"
+                 "[S] - Show wave function as a superposition.\n"
+                 "[E] - Show all energy eigenfunctions.\n")
 
     modes_text = ("ADVENTURE MODE - achieve certain goals by collapsing "
                   "your particle's energy (using [UP] or [DOWN]) to match the "

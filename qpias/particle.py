@@ -11,17 +11,18 @@ class Particle():
     A class to store all the information about the particle.
     '''
 
-    def __init__(self, nmax=45, length=1, mass=1, potential=None):
+    def __init__(self, nmax=40, length=1, mass=1, potential=None, emax=None):
 
         self.nmax = nmax
         self.length = length
         self.mass = mass
+        self._emax = emax
 
         # if no potential given, set potential to zero
         if potential is not None:
             self.potential = potential
         else:
-            self.potential = np.zeros((999))
+            self.potential = np.zeros((500))
 
         self.x = np.linspace(0, self.length, self.xpoints)
 
@@ -84,7 +85,7 @@ class Particle():
         for i in range(self.nmax):
             ni = i+1 
             for j in range(i, self.nmax):
-                nj = j+1 
+                nj = j+1
                 V[i,j] = ((2/self.length) * sp.integrate.simps(np.sin(
                           ni*np.pi*self.x/self.length)
                        * np.sin(nj*np.pi*self.x/self.length) * potential, self.x)) 
@@ -108,8 +109,8 @@ class Particle():
 
         # diagonalize the hamiltonian
         energies, coefficients = np.linalg.eigh(H)
-        self._emax = 10000 / self.length**2 # maximum energy to use
-        idx = np.where(energies > self._emax)
+        if self._emax is None: self._emax = energies[20]
+        idx = np.where(energies > self._emax*1.2)
         try:
             self.nmax = idx[0][0]
         except IndexError:
@@ -153,7 +154,7 @@ class Particle():
         self.d2psi_dx2 = np.dot(coefficients.T, d2_basis)
 
         # calculate and set the particle (average) energy
-        self.average_energy = energies[0]
+        self.average_energy = self.energies[0]
 
     def get_operator_matrices(self, C):
         '''
@@ -226,6 +227,7 @@ class Particle():
         self.Ct = C * time_function
         psi = np.einsum('i,ij->j', self.Ct, self.wave_functions)
         return psi
+
 
     def position_momentum_collapse(self, psi, x0=None, k0=None, momentum=False):
         '''

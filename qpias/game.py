@@ -17,7 +17,7 @@ class Game():
     A class to store all the information about the game state.
     '''
 
-    def __init__(self, dpi=96, width=800, height=600, dt=1e-4, fps=20):
+    def __init__(self, dpi=96, width=800, height=600, dt=1e-4, fps=60):
         '''
         Initializes the game state.
         '''
@@ -31,7 +31,6 @@ class Game():
         self.adventure_menu_font_size = 26
         self.text_font_size = 40
         self.top_bar_font_size = 25
-
 
         # initialize pygame
         self.pygame = pygame.init()
@@ -74,7 +73,7 @@ class Game():
         # other attributes
         # how often to calculate the wave function properties
         self.__properties_time = 0
-        self.__properties_duration = 2 # recalculate every n frames
+        self.__properties_duration = 10 # recalculate every n frames
 
         # how long a wave function collapse takes
         self._collapse_time = 0.75 # in seconds?
@@ -82,10 +81,18 @@ class Game():
         # show superposition waves
         self.superposition_mode = False
 
+        # show all eigenvectors
+        self.eigenvectors_mode = False
+
         # ADVENTURE MODE SPECIFIC VARIABLES
         self._level_reset()
-        self._show_levels = [True] * 8 + [False] * 2 + [True]
-        self._levels_available = 11
+        self._show_levels = [True] * 1 + [False] * 4 + [True]
+        self._levels_available = 1
+        self._levels_completed = {'QUANTA': 0,
+                                  'LENGTH': 0,
+                                  'CAT': 0,
+                                  'UNCERTAINTY': 0,
+                                  'TUNNELING': 0}
 
 
     def resource_path(self, relative_path):
@@ -101,7 +108,7 @@ class Game():
 
     @property
     def _all_level_options(self):
-        return ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'X', 'P', 'G', 'S'].copy()
+        return ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'X', 'P', 'G', 'S', 'E'].copy()
 
     def plot_wave_function(self, particle, psi, average_energy=None):
         '''
@@ -115,7 +122,7 @@ class Game():
         canvas = self.canvas
         x = particle.x
 
-        ymax = 50/particle.length
+        ymax = 50#/particle.length
 
         # use the average energy to shift the wave function up/down 
         if average_energy is None:
@@ -127,10 +134,17 @@ class Game():
         ax.grid()
         ax.set_ylim((0,ymax))
         ax.set_xlim((x[0],x[-1]))
+        if particle.length < 1.0:
+            space = (1 - particle.length) / 2.
+            ax.set_xlim((0,1))
+            ax.fill_between([0,space], 10000, 0, color='#646464')
+            ax.fill_between([space+x[-1],1], 10000, 0, color='#646464')
+        else:
+            space = 0
 
         # scale and plot the potential surface
         scaled_potential = potential * ymax / particle._emax
-        ax.fill_between(x, scaled_potential, 0, color='#646464')
+        ax.fill_between(x+space, scaled_potential, 0, color='#646464')
 
         # draw a green goal region if present
         goal = self._goal
@@ -138,38 +152,38 @@ class Game():
             if 'energy' in goal:
                 emin = goal['energy'][0] * ymax / particle._emax
                 emax = goal['energy'][1] * ymax / particle._emax
-                ax.fill_between([x.min(),x.max()], [emin, emin], [emax, emax],
-                    color='#2ca02c', alpha=0.5)
+                ax.fill_between([x.min()+space,x.max()+space], [emin, emin],
+                    [emax, emax], color='#2ca02c', alpha=0.5)
             if 'position' in goal:
                 xmin = goal['position'][0]
                 xmax = goal['position'][1]
-                ax.fill_between([xmin, xmax], [ymax, ymax], 0,
+                ax.fill_between([xmin+space, xmax+space], [ymax, ymax], 0,
                     color='limegreen', alpha=0.5)
  
         # prints the expectation values and uncertainties
         self.draw_top_bar(particle, psi, average_energy)
 
-        if self.superposition_mode:
+        if self.eigenvectors_mode:
 
-            self.plot_superposition(particle, ymax)
+            self.plot_eigenvectors(particle, ymax, space=space)
+
+        elif self.superposition_mode:
+
+            self.plot_superposition(particle, ymax, space=space)
 
         else:
  
-            # plot the x-axis
-            ax.plot(x, np.zeros_like(x)+yshift, color='k', lw=self.lw*0.3)
-
             # plot the real and imaginary parts of the wave function
-            ax.plot(x, psi.imag+yshift, color='tab:orange', lw=self.lw*4,
+            ax.plot(x+space, psi.imag+yshift, color='tab:orange', lw=self.lw*4,
                 label='$\\mathrm{Im}[\\Psi]$')
-            ax.plot(x, psi.real+yshift, color='tab:red', lw=self.lw*4,
+            ax.plot(x+space, psi.real+yshift, color='tab:red', lw=self.lw*4,
                 label='$\\mathrm{Re}[\\Psi]$')
 
         # plot the probability density function
-        ax.fill_between(x, (psi*psi.conjugate()).real+yshift,
-            yshift-(psi*psi.conjugate()).real,
-            color='tab:blue', lw=self.lw*4, alpha=0.8)
-#        ax.fill_between(x, yshift-(psi*psi.conjugate()).real,
-#            yshift, color='tab:blue', lw=self.lw*4, alpha=0.8)
+        if not self.eigenvectors_mode:
+            psi_squared = (psi*psi.conjugate()).real
+            ax.fill_between(x+space, yshift+psi_squared,
+                yshift-psi_squared, color='tab:blue', lw=self.lw*4, alpha=0.8)
 
         # plot the graph to the surface/screen
         canvas.draw()
@@ -180,7 +194,7 @@ class Game():
         self.screen.blit(surf, self.plot_origin)
 
 
-    def plot_superposition(self, particle, ymax, C=None):
+    def plot_superposition(self, particle, ymax, space, C=None):
 
         ax = self.ax
         x  = particle.x
@@ -193,7 +207,7 @@ class Game():
         # sort the probabilities
         indx = np.argsort(-prob)
 
-        # plot the highest 5 wave functions
+        # plot the highest probability energy eigenfunctions
         for i in range(len(prob)):
 
             # get index and linewidth
@@ -205,12 +219,34 @@ class Game():
 
             # plot the axis
             energy = particle.energies[idx] * scale
-            ax.plot(x, np.zeros_like(x)+energy, 'k-', lw=lw*0.3/4)
+            ax.plot(x+space, np.zeros_like(x)+energy, 'k-', lw=lw*0.3/4)
 
             # get and plot the wave function
             wf = C[idx] * particle.wave_functions[idx]
-            ax.plot(x, wf.imag+energy, color='tab:orange', lw=lw)
-            ax.plot(x, wf.real+energy, color='tab:red', lw=lw)
+            ax.plot(x+space, wf.imag+energy, color='tab:orange', lw=lw)
+            ax.plot(x+space, wf.real+energy, color='tab:red', lw=lw)
+
+
+    def plot_eigenvectors(self, particle, ymax, space):
+
+        ax = self.ax
+        x = particle.x
+        scale = ymax / particle._emax
+
+        for i in range(len(particle.energies)):
+
+            energy = particle.energies[i]
+            if energy > particle._emax: continue
+
+            energy *= scale
+
+            ax.plot(x+space, np.zeros_like(x)+energy, 'k-', lw=0.3)
+
+            c_temp = np.exp(-1j * particle.energies[i] * self.time)
+            wf = c_temp * particle.wave_functions[i] / 2.0
+
+            ax.plot(x+space, wf.real+energy, color='tab:orange', lw=2)
+            ax.plot(x+space, wf.imag+energy, color='tab:green', lw=2)
 
 
     def draw_top_bar(self, particle, psi, average_energy, coefficient=None):
@@ -293,6 +329,7 @@ class Game():
     def collapse_animation(self, particle, C_old, C_new):
     
         # draw time steps between current wave function and new wave function
+        self.eigenvectors_mode = False
         animating = True
         t = 0
         tmax = self._collapse_time
@@ -397,8 +434,8 @@ class Game():
                 self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
 
         # get button sizes
-        size = int(min(self.height*0.09, self.width/11))
-        self.button_spacing = (self.width - size*9) / 9
+        size = int(min(self.height*0.09, self.width/12))
+        self.button_spacing = (self.width - size*10) / 10
 
         # initialize the buttions
 
@@ -421,7 +458,10 @@ class Game():
                 'G_S':      "images/g_s.png",
                 'S':        "images/superposition.png",
                 'S_S':      "images/superposition_s.png",
-                'S_ON':     "images/superposition_on.png"}
+                'S_ON':     "images/superposition_on.png",
+                'E':        "images/states.png",
+                'E_S':      "images/states_s.png",
+                'E_ON':     "images/states_on.png",}
 
         for key in keys:
             temp = pygame.image.load(self.resource_path(keys[key]))
@@ -466,7 +506,7 @@ class Game():
 
         # keys that can be shown
         keys = ["ESC", "LEFT", "RIGHT", "UP", "DOWN", "X", "P",
-                "G", "S"]
+                "G", "S", "E"]
     
         # maximum height and width to use
         max_height = self.height * 0.08
@@ -503,27 +543,35 @@ class Game():
 
                 image = self.button_images[key+'_S']
                 self._button_selected = key
-                
+
             else:
 
-                if key == 'S' and self.superposition_mode:
-                    image = self.button_images['S_ON']
-                elif key == 'S' and not self.superposition_mode:
-                    image = self.button_images['S']
+                if key == 'S':
+                    if self.superposition_mode:
+                        image = self.button_images['S_ON']
+                    elif key == 'S' and not self.superposition_mode:
+                        image = self.button_images['S']
+
+                elif key == 'E':
+                    if self.eigenvectors_mode:
+                        image = self.button_images['E_ON']
+                    elif key == 'E' and not self.eigenvectors_mode:
+                        image = self.button_images['E']
+
                 else:
-                    image = self.button_images[key]
+                        image = self.button_images[key]
 
             self.screen.blit(image, (button_x, button_y))
 
 
     def _level_reset(self):
-        self._level_options = ['ESC', 'LEFT', 'RIGHT', 'UP',
-                'DOWN', 'X', 'P', 'G', 'S']
+        self._level_options = self._all_level_options
         self._button_selected = None
         self._goal = None
         self.dt = 1e-4
         self.time = 0
         self.superposition_mode = False
+        self.eigenvectors_mode = False
 
     def quit(self, *args, **kwargs):
         pygame.display.quit()
@@ -533,23 +581,23 @@ class Game():
     # some common potentials used
     @property
     def harmonic_oscillator_potential(self):
-        return ((np.linspace(0,1,999)-0.5))**2 * 40000.0
+        return ((np.linspace(0,1,500)-0.5))**2 * 40000.0
 
     @property
-    def morse_potential(self, re=0.12, de=5000):
-        x = np.linspace(0,1,999)
+    def morse_potential(self, re=0.12, de=2000):
+        x = np.linspace(0,1,500)
         return de * (1 - np.exp(-8 * (x - re)))**2
 
     @property
     def barrier_potential(self, x0=0.46, x1=0.56, de=4500):
-        x = np.linspace(0,1,999)
+        x = np.linspace(0,1,500)
         potential = np.zeros_like(x)
         potential[np.where((x>=x0)&(x<=x1))] = de
         return potential
 
     @property
     def coulombic_potential(self):
-        potential = -1/np.abs(np.linspace(0,1,999)-0.5001)
+        potential = -1/np.abs(np.linspace(0,1,100)-0.5001)
         potential += 1000
         return potential
 

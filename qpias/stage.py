@@ -14,8 +14,7 @@ class Stage():
 
         # set goal and level options
         if level_options is None:
-            self.level_options = ['ESC', 'LEFT', 'RIGHT', 'UP',
-                'DOWN', 'X', 'P', 'G', 'S']
+            self.level_options = game._all_level_options
         else:
             self.level_options = level_options
         game._level_options = self.level_options
@@ -24,8 +23,21 @@ class Stage():
 
         self.events = events
 
+        if initial_conditions is not None:
+            if 'length' in initial_conditions:
+                length = initial_conditions['length']
+            else:
+                length = 1
+            if 'emax' in initial_conditions:
+                emax = initial_conditions['emax']
+            else:
+                emax = None
+        else:
+            length = 1
+            emax = None
+
         # generate the particle
-        particle = Particle(potential=potential)
+        particle = Particle(potential=potential, length=length, emax=emax)
         particle.calculate_wave_functions()
 
         # set initial conditions if given 
@@ -57,9 +69,12 @@ class Stage():
                            'X': 0,
                            'P': 0,
                            'G': 0,
+                           'S': 0,
+                           'E': 0,
                            'EVENT': 0,
                            'TIME': 0}
         self.last_occurance = self.occurances.copy()
+        last_time = pygame.time.get_ticks()
 
         self.running = True
         while self.running:
@@ -70,16 +85,20 @@ class Stage():
             # advance game and particle times 
             game.time += game.dt
             particle.time = game.time
-            self.occurances['TIME'] += 1 / game.fps
 
             # get and plot the wave function
             psi = particle.get_wave_function(particle.C, game.time)
             game.plot_wave_function(particle, psi)
             game.draw_bottom_bar()
-    
+   
+            # set null selection and ellapsed time
+            selection = None
+            ellapsed_time = (pygame.time.get_ticks() - last_time)/1000
+ 
+ 
             # listen to game events
             for event in pygame.event.get():
-    
+   
                 # quit the game if requested
                 if event.type == QUIT:
                     game.quit()
@@ -127,6 +146,7 @@ class Stage():
                         game.time = 0
 
                         # check whether goal is achieved
+                        e0 = particle.energies[0]
                         if self.goal is not None and 'energy' in self.goal:
                             if self.goal['energy'][0] <= e0 <= self.goal['energy'][1]:
                                 self.level_completed()
@@ -173,6 +193,15 @@ class Stage():
                             game.superposition_mode = False
                         else:
                             game.superposition_mode = True
+                            game.eigenvectors_mode = False
+
+                    # if the E key is pressed - change to/from eigenvectors mode
+                    elif selection == 'E':
+                        if game.eigenvectors_mode:
+                            game.eigenvectors_mode = False
+                        else:
+                            game.eigenvectors_mode = True
+                            game.superposition_mode = False
 
                     # count occurances of a key
                     if selection is not None:
@@ -185,10 +214,13 @@ class Stage():
                 elif event.type == VIDEORESIZE:
                     game.resize(event.w, event.h)
                     game.screen.fill((255,255,255))
-   
-            if self.events is not None:
-                # check for events
-                self.check_event()
+ 
+            # check for events
+            if self.events is not None and ((ellapsed_time > 1)
+                or selection is not None):
+                self.occurances['TIME'] += 1
+                self.check_event(selection=selection)
+                last_time = pygame.time.get_ticks()
 
             # update and tick clock
             pygame.display.flip()
@@ -199,19 +231,26 @@ class Stage():
 
         return self._completed
 
-    def check_event(self):
 
-        try:
-            current_event = self.events[self.occurances['EVENT']]
-        except IndexError:
-            return
+    def check_event(self, selection):
 
-        if ((self.occurances[current_event[0]] - self.last_occurance[current_event[0]])
-            >= current_event[1]):
-            self.popup_text(current_event[2])
+        for event in self.events:
+            if selection is not None and selection == event[0]:
+                if self.occurances[selection] >= event[1]:
+                    if event[2] == "EXIT":
+                        self.level_completed()
+                    else:
+                        self.popup_text(event[2])
+                        self.events.remove(event)
+                        self.occurances[selection] = 0
+                break
+            elif selection is None and event[0] == 'TIME':
+                if self.occurances['TIME'] > event[1]:
+                    self.popup_text(event[2])
+                    self.events.remove(event)
+                    self.occurances['TIME'] = 0
+                break
 
-            self.last_occurance = self.occurances.copy()
-            self.occurances['EVENT'] += 1
 
     def get_selection(self, event):
 
@@ -219,6 +258,7 @@ class Stage():
                 'P': pygame.K_p,
                 'G': pygame.K_g,
                 'S': pygame.K_s,
+                'E': pygame.K_e,
                 'LEFT': pygame.K_LEFT,
                 'RIGHT': pygame.K_RIGHT,
                 'UP': pygame.K_UP,
