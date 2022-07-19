@@ -8,6 +8,12 @@ Author
 ======
 Dhabih V. Chulhai (chulhaid@uindy.edu)
 
+Citation
+========
+Use the following to cite this code:
+
+- Chulhai, D. V. QPiaS: Quantum Particle-in-a-Sandbox. https://github.com/dchulhai/QPiaS, 2021.
+
 Installing and Running QPiaS
 ============================
 
