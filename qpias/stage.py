@@ -7,10 +7,13 @@ from qpias.particle import Particle
 class Stage():
 
     def __init__(self, game, potential, initial_conditions=None,
-        goal=None, level_options=None, events=None):
+        goal=None, level_options=None, events=None, superposition_mode=False,
+        eigenvectors_mode=False):
 
         self.game = game
         self.game._level_reset()
+        self.game.superposition_mode = superposition_mode
+        self.game.eigenvectors_mode = eigenvectors_mode
 
         # set goal and level options
         if level_options is None:
@@ -57,7 +60,7 @@ class Stage():
         self._n_events = 0
         self._completed = False
 
-    def run(self, *args):
+    def run(self, *args, **kwargs):
 
         particle = self.particle
         game = self.game

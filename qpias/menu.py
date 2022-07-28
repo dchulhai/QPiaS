@@ -5,6 +5,16 @@ from qpias.buttons import Buttons
 
 
 class Menu():
+    """Creates a game menu with selectable text.
+
+    :param game: A QPiaS Game object.
+    :type game: :class:`qpias.game.Game`
+
+    :param list options: A list of options available in the menu.
+
+    """
+
+
     def __init__(self, game, options, show=None, font=None):
 
         self.game = game
@@ -81,15 +91,15 @@ def main_menu(game):
     '''The main menu in pygame'''
 
     from qpias.title import title_screen
-    from qpias.adventure import adventure_mode
+    from qpias.concepts import concepts_mode
     from qpias.sandbox import sandbox_information
 
     # show the title screen
     title_screen(game)
 
-    options = [['ADVENTUDE MODE', adventure_mode],
+    options = [['CORE CONCEPTS', concepts_mode],
                ['MODEL POTENTIALS', potentials_menu],
-               ['SANDBOX MODE', sandbox_information],
+               ['SANDBOX', sandbox_information],
                ['ABOUT', about_menu],
                ['QUIT', game.quit]]
 
@@ -126,12 +136,12 @@ def about_menu(game):
     welcome_text = ("Welcome to Quantum Particle-in-a-Sandbox, where "
                     "you explore what happens to a 1-dimensional "
                     "quantum mechanical wave function.\n\n"
-                    "Quantum Particle-in-a-Sanbox was developed by Dhabih "
+                    "Quantum Particle-in-a-Sandbox was developed by Dhabih "
                     "V. Chulhai (chulhaid@uindy.edu) (c) 2022 and "
-                    "may be used according to the Apache Licence v 2.0")
+                    "may be used according to the Apache License v 2.0")
 
     instruction_text1 = ("Press [ESC] to return to the previous screen "
-                        " or press any other key for more instruction.")
+                         "or press any other key for more instruction.")
 
     instruction_text2 = ("Press [ESC] to return to the previous screen.")
 
@@ -147,14 +157,14 @@ def about_menu(game):
                  "[S] - Show wave function as a superposition.\n"
                  "[E] - Show all energy eigenfunctions.\n")
 
-    modes_text = ("ADVENTURE MODE - achieve certain goals by collapsing "
+    modes_text = ("CORE CONCEPTS - achieve certain goals by collapsing "
                   "your particle's energy (using [UP] or [DOWN]) to match the "
                   "green horizontal region or by collapsing your particle's "
                   "position (using [X] or [P]) to match the green vertical region.\n\n"
                   "MODEL POTENTIALS - explore the wave function in these commonly used "
                   "model potentials.\n\n"
-                  "SANDBOX MODE - draw your own potential then see how the quantum "
-                  " wave function evolves in this potential.")
+                  "SANDBOX - draw your own potential, then see how the quantum "
+                  "wave function evolves in this potential.")
 
     texts = [[welcome_text, instruction_text1],
              [keys_text, instruction_text1],

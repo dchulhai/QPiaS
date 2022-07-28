@@ -6,7 +6,7 @@ from pygame.locals import QUIT, VIDEORESIZE, KEYDOWN, MOUSEBUTTONUP
 from qpias.stage import Stage
 from qpias.menu import Menu
 
-def adventure_mode(game):
+def concepts_mode(game):
 
     options = [['1 - Quanta', lvl_quanta],
                ['2 - Box length', lvl_box_length],
@@ -30,7 +30,7 @@ def lvl_quanta(game):
 
         events = [('TIME', 0, ["Welcome to the energy tutorial! "
                            "On this screen, you will see a particle in "
-                           "a harmonic oscialltor potential. "
+                           "a harmonic oscillator potential. "
                            "Your goal is to match the particle's energy "
                            "to the green bar."]),
               ('TIME', 1, ['Pretty boring, right? Try pressing the [RIGHT] '
@@ -95,7 +95,7 @@ def lvl_box_length(game):
         goal = None
         level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'G', 'E']
 
-        events = [('TIME', 0, ["Let's explore a box that a bit narrow."]),
+        events = [('TIME', 0, ["Let's explore a box that's a bit narrow."]),
                   ('UP', 1, ["Notice how far apart the energies are. "
                              "You can see all possible energies by "
                              "pressing the [E] key."])]
@@ -112,7 +112,7 @@ def lvl_box_length(game):
         goal = None
         level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'G', 'E']
 
-        events = [('TIME', 0, ["Let's explore a box that a bit longer."]),
+        events = [('TIME', 0, ["Let's explore a box that's a bit longer."]),
                   ('UP', 1, ["Press [E] to see the possible energies."]),
                   ('E', 1, ["Do the energy spacings seem a bit closer together?"])]
 
@@ -145,7 +145,7 @@ def lvl_box_length(game):
         level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'G', 'E']
 
         events = [('TIME', 0, ["This is the largest box we can make. How many "
-                               "photons you you need to absorb to get to the "
+                               "photons do you need to absorb to get to the "
                                "required energy?"])]
 
         stage = Stage(game, None, initial_conditions={'length': 0.8, 'emax': 400},
@@ -173,7 +173,7 @@ def lvl_schrodinger_cat(game):
         events = [('TIME', 0, ["Where is our particle? "
                                "The square of the wave function (blue region) "
                                "gives the probability of finding the particle."]),
-                  ('TIME', 0, ["It's not until you try to find the position of "
+                  ('TIME', 0, ["Not until you try to find the position of "
                                "the particle by pressing [X] does it 'decide' "
                                "where it is."]),
                   ('TIME', 0, ["Try to collapse your particle's position to "
@@ -184,8 +184,8 @@ def lvl_schrodinger_cat(game):
                             "of the particle."]),
                   ('TIME', 5, ["Keep trying to collapse the particle's position "
                                "in the green region by pressing [X]."]),
-                  ('TIME', 10, ["HINT: You can always try changing the your wave "
-                                "function's energy by absorbing [UP] or emiting "
+                  ('TIME', 10, ["HINT: You can always try changing your wave "
+                                "function's energy by absorbing [UP] or emitting "
                                 "[DOWN] a photon to change your probabilities or "
                                 "press [G] to return to the ground state."])]
 
@@ -203,8 +203,8 @@ def lvl_schrodinger_cat(game):
         events = [('TIME', 0, ["Is the particle on the left or the right?"]),
                   ('TIME', 0, ["This is the famous Schrodinger's cat problem, "
                                "where the cat can be thought of as either alive "
-                               "or dead, and it's not until you "
-                               "collapse the wave function, will you know which it is."]),
+                               "or dead, and not until you "
+                               "collapse the wave function will you know which it is."]),
                   ('TIME', 0, ["Collapse the wave function by pressing [X]. You can "
                                "always return to the ground state by pressing [G]."]),
                   ('X', 3,    ["You can always return to the ground state by "
@@ -291,7 +291,7 @@ def lvl_tunneling(game):
         level_options = ['ESC', 'LEFT', 'RIGHT', 'X', 'P', 'G', 'S']
 
         events = [('TIME', 0, ["If there is a potential barrier that's not too large, "
-                               "there is a small change to find the particle inside "
+                               "there is a small chance to find the particle inside "
                                "the potential region, or even on the other side of the "
                                "barrier!"]),
                   ('TIME', 3, ["Try to collapse your particle's position on the other "
@@ -302,7 +302,7 @@ def lvl_tunneling(game):
                              "I can feel it!"])]
 
         potential = np.zeros((501))
-        potential[230:281] = 1000 
+        potential[230:281] = 800 
 
         stage = Stage(game, potential, initial_conditions={'n': 9},
                       goal=goal, level_options=level_options, events=events)
@@ -314,7 +314,7 @@ def lvl_tunneling(game):
         goal = {'position': [0.7, 0.9]}
         level_options = ['ESC', 'LEFT', 'RIGHT', 'X', 'P', 'G', 'S']
 
-        events = [('TIME', 0, ["Let's try to tunneling through something with a "
+        events = [('TIME', 0, ["Let's try tunneling through something with a "
                                "higher potential barrier!"]),
                   ('TIME', 10, ["Press [X] or [P] to collapse the position or "
                                 "momentum of the particle to see if you made it "
@@ -323,8 +323,11 @@ def lvl_tunneling(game):
                   ('G', 15, ["I think your particle has the momentum this time, "
                              "I can feel it!"])]
 
-        stage = Stage(game, game.barrier_potential, initial_conditions={'n': 9}, 
-                      goal=goal, level_options=level_options, events=events)
+        potential = np.zeros((501))
+        potential[230:281] = 1800
+        stage = Stage(game, potential,
+                      initial_conditions={'n': 9}, goal=goal,
+                      level_options=level_options, events=events)
         sublevel_completed = stage.run()
         if sublevel_completed: game._levels_completed['TUNNELING'] += 1
 
@@ -362,7 +365,7 @@ def lvl_tunneling(game):
 
             # updates the frames of the game 
             pygame.display.flip()
-            game.clock.tick(game.fps)
+            game.clock.tick(game.fps/20)
 
 
 def lvl_position_tutorial(game):

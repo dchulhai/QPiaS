@@ -13,14 +13,40 @@ import numpy as np
 import scipy as sp
 
 class Game():
-    '''
-    A class to store all the information about the game state.
-    '''
+    """Creates the game window and stores all the information about the game state.
+
+    :param dpi: Dots-per-inch, default 96
+    :type dpi: int, optional
+
+    :param width: Screen width in pixels, default 800
+    :type width: int, optional
+
+    :param height: Screen height
+    :type height: int, optional
+
+    :param dt: Initial time step for animation, default 1e-4
+    :type dt: float, optional
+
+    :param fps: Frames-per-second, default 60
+    :type fps: int, optional
+
+    :param superposition_mode: Whether to display a single wave function or a
+        superposition of wave functions, default False (single wave function)
+    :type superposition_mode: bool, optional
+
+    :param eigenvectors_mode: Whether to display all the energy eigenvectors or
+        the current wave function, default False (current wave function)
+    :type eigenvectors_mode: bool, optional
+
+    **Example**::
+
+        >>> import qpias
+        >>> game = qpias.game.Game(width=1920, height=1080)
+        >>> game.quit()
+    """
 
     def __init__(self, dpi=96, width=800, height=600, dt=1e-4, fps=60):
-        '''
-        Initializes the game state.
-        '''
+        """Initialize the game."""
 
         # set the size defaults
         self.dpi = dpi
@@ -28,9 +54,11 @@ class Game():
         self.height = height
         self._lw_ratio = 1/4.
         self.menu_font_size = 40
-        self.adventure_menu_font_size = 26
+        self.concepts_menu_font_size = 26
         self.text_font_size = 40
         self.top_bar_font_size = 25
+        self.superposition_mode = False
+        self.eigenvectors_mode = False
 
         # initialize pygame
         self.pygame = pygame.init()
@@ -41,14 +69,16 @@ class Game():
         pygame.display.set_caption('Quantum Particle-in-a-Sandbox')
 
         # initialize font objects
-        self.menu_font = pygame.font.Font(self.resource_path('fonts/chintzy.ttf'),
+        self.menu_font = pygame.font.Font(self._resource_path('fonts/chintzy.ttf'),
                 self.menu_font_size)
-        self.adventure_menu_font = pygame.font.Font(
-                self.resource_path('fonts/chintzy.ttf'), self.adventure_menu_font_size)
-        self.text_font = pygame.font.Font(self.resource_path('fonts/ccr.ttf'),
+        self.concepts_menu_font = pygame.font.Font(
+                self._resource_path('fonts/chintzy.ttf'),
+                self.concepts_menu_font_size)
+        self.text_font = pygame.font.Font(self._resource_path('fonts/ccr.ttf'),
                 self.text_font_size)
         self.top_bar_font = pygame.font.Font(
-                self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
+                self._resource_path('fonts/instruction.ttf'),
+                self.top_bar_font_size)
 
         # set up game timer
         self.time = 0
@@ -78,12 +108,6 @@ class Game():
         # how long a wave function collapse takes
         self._collapse_time = 0.75 # in seconds?
 
-        # show superposition waves
-        self.superposition_mode = False
-
-        # show all eigenvectors
-        self.eigenvectors_mode = False
-
         # ADVENTURE MODE SPECIFIC VARIABLES
         self._level_reset()
         self._show_levels = [True] * 1 + [False] * 4 + [True]
@@ -95,8 +119,9 @@ class Game():
                                   'TUNNELING': 0}
 
 
-    def resource_path(self, relative_path):
-        """ Get absolute path to resource, works for dev and for PyInstaller """
+    def _resource_path(self, relative_path):
+        """Get absolute path to resource, works for dev and for PyInstaller."""
+
         # split relative path as needed
         try:
             # PyInstaller creates a temp folder and stores path in _MEIPASS
@@ -108,12 +133,21 @@ class Game():
 
     @property
     def _all_level_options(self):
+        """All the shortcut options available for each level."""
         return ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'X', 'P', 'G', 'S', 'E'].copy()
 
     def plot_wave_function(self, particle, psi, average_energy=None):
-        '''
-        Plots the wave function to the screen.
-        '''
+        """Plots the wave function to the screen.
+
+        :param particle: The particle and potential surface to use
+        :type particle: qpias.particle.Particle
+
+        :param psi: The current wave function to plot
+        :type psi: numpy.ndarray
+
+        :param average_energy: The current average energy of the particle
+        :type average_energy: float
+        """
 
         # some defaults
         ax = self.ax
@@ -122,17 +156,24 @@ class Game():
         canvas = self.canvas
         x = particle.x
 
-        ymax = 50#/particle.length
+        ymin = 0
+        ymax = 50
+
+        # scale potential surface based on particle energies
+        emin = particle.energies[0]
+        emax = particle._emax
+        def scale(x):
+            return (x - emin) * (45.0 / (emax - emin)) + 5
 
         # use the average energy to shift the wave function up/down 
         if average_energy is None:
             average_energy = particle.average_energy
-        yshift = average_energy * ymax / particle._emax
+        yshift = scale(average_energy)
 
         # clear/reset axis and set thickness of graph box
         ax.cla()
         ax.grid()
-        ax.set_ylim((0,ymax))
+        ax.set_ylim((ymin,ymax))
         ax.set_xlim((x[0],x[-1]))
         if particle.length < 1.0:
             space = (1 - particle.length) / 2.
@@ -143,33 +184,35 @@ class Game():
             space = 0
 
         # scale and plot the potential surface
-        scaled_potential = potential * ymax / particle._emax
+        scaled_potential = scale(potential)
         ax.fill_between(x+space, scaled_potential, 0, color='#646464')
 
         # draw a green goal region if present
         goal = self._goal
         if goal is not None:
             if 'energy' in goal:
-                emin = goal['energy'][0] * ymax / particle._emax
-                emax = goal['energy'][1] * ymax / particle._emax
-                ax.fill_between([x.min()+space,x.max()+space], [emin, emin],
-                    [emax, emax], color='#2ca02c', alpha=0.5)
+                e_goal_min = scale(goal['energy'][0])
+                e_goal_max = scale(goal['energy'][1])
+                ax.fill_between([x.min()+space,x.max()+space],
+                                [e_goal_min, e_goal_min],
+                                [e_goal_max, e_goal_max],
+                                color='#2ca02c', alpha=0.5)
             if 'position' in goal:
                 xmin = goal['position'][0]
                 xmax = goal['position'][1]
-                ax.fill_between([xmin+space, xmax+space], [ymax, ymax], 0,
-                    color='limegreen', alpha=0.5)
+                ax.fill_between([xmin+space, xmax+space], [ymax, ymax], ymin,
+                                color='limegreen', alpha=0.5)
  
         # prints the expectation values and uncertainties
         self.draw_top_bar(particle, psi, average_energy)
 
         if self.eigenvectors_mode:
 
-            self.plot_eigenvectors(particle, ymax, space=space)
+            self.plot_eigenvectors(particle, ymax, space=space, scale=scale)
 
         elif self.superposition_mode:
 
-            self.plot_superposition(particle, ymax, space=space)
+            self.plot_superposition(particle, ymax, space=space, scale=scale)
 
         else:
  
@@ -194,11 +237,10 @@ class Game():
         self.screen.blit(surf, self.plot_origin)
 
 
-    def plot_superposition(self, particle, ymax, space, C=None):
+    def plot_superposition(self, particle, ymax, space, scale, C=None):
 
         ax = self.ax
         x  = particle.x
-        scale = ymax / particle._emax
 
         # get coefficients and probabilities
         if C is None: C = particle.Ct
@@ -218,7 +260,7 @@ class Game():
             if lw < 0.5: break
 
             # plot the axis
-            energy = particle.energies[idx] * scale
+            energy = scale(particle.energies[idx])
             ax.plot(x+space, np.zeros_like(x)+energy, 'k-', lw=lw*0.3/4)
 
             # get and plot the wave function
@@ -227,18 +269,17 @@ class Game():
             ax.plot(x+space, wf.real+energy, color='tab:red', lw=lw)
 
 
-    def plot_eigenvectors(self, particle, ymax, space):
+    def plot_eigenvectors(self, particle, ymax, space, scale):
 
         ax = self.ax
         x = particle.x
-        scale = ymax / particle._emax
 
         for i in range(len(particle.energies)):
 
             energy = particle.energies[i]
             if energy > particle._emax: continue
 
-            energy *= scale
+            energy = scale(energy)
 
             ax.plot(x+space, np.zeros_like(x)+energy, 'k-', lw=0.3)
 
@@ -420,18 +461,18 @@ class Game():
 
         # change font sizes
         self.menu_font_size = int(40 * min(self.width, self.height) / 600.)
-        self.adventure_menu_font_size = int(26 * min(self.width, self.height) / 600.)
+        self.concepts_menu_font_size = int(26 * min(self.width, self.height) / 600.)
         self.text_font_size = int(40 * min(self.width, self.height) / 600.)
         self.top_bar_font_size = int(25 * self.height / 600.)
 
-        self.menu_font = pygame.font.Font(self.resource_path('fonts/chintzy.ttf'),
+        self.menu_font = pygame.font.Font(self._resource_path('fonts/chintzy.ttf'),
                 self.menu_font_size)
-        self.adventure_menu_font = pygame.font.Font(
-                self.resource_path('fonts/chintzy.ttf'), self.adventure_menu_font_size)
-        self.text_font = pygame.font.Font(self.resource_path('fonts/ccr.ttf'),
+        self.concepts_menu_font = pygame.font.Font(
+                self._resource_path('fonts/chintzy.ttf'), self.concepts_menu_font_size)
+        self.text_font = pygame.font.Font(self._resource_path('fonts/ccr.ttf'),
                 self.text_font_size)
         self.top_bar_font = pygame.font.Font(
-                self.resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
+                self._resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
 
         # get button sizes
         size = int(min(self.height*0.09, self.width/12))
@@ -464,7 +505,7 @@ class Game():
                 'E_ON':     "images/states_on.png",}
 
         for key in keys:
-            temp = pygame.image.load(self.resource_path(keys[key]))
+            temp = pygame.image.load(self._resource_path(keys[key]))
             button_images[key] = pygame.transform.scale(temp, (size, size))
         self.button_images = button_images
         self.button_size = size
@@ -514,11 +555,11 @@ class Game():
     
         # figure out ideal font size
         size = 40
-        keyfont = pygame.font.Font(self.resource_path('fonts/ccr.ttf'), size)
+        keyfont = pygame.font.Font(self._resource_path('fonts/ccr.ttf'), size)
         word_surface = keyfont.render('[RIGHT]', True, (0,0,0))
         word_width, word_height = word_surface.get_size()
         size = int(min(max_width * 40 / word_width, max_height * 40 / word_height))
-        keyfont = pygame.font.Font(self.resource_path('fonts/ccr.ttf'), size)
+        keyfont = pygame.font.Font(self._resource_path('fonts/ccr.ttf'), size)
 
         # get starting y-position of the buttons   
         button_y = self.height * 0.95 - self.button_size / 2
@@ -565,6 +606,8 @@ class Game():
 
 
     def _level_reset(self):
+        """Resets the game variables between each game level."""
+
         self._level_options = self._all_level_options
         self._button_selected = None
         self._goal = None
@@ -572,6 +615,7 @@ class Game():
         self.time = 0
         self.superposition_mode = False
         self.eigenvectors_mode = False
+
 
     def quit(self, *args, **kwargs):
         pygame.display.quit()
@@ -589,7 +633,7 @@ class Game():
         return de * (1 - np.exp(-8 * (x - re)))**2
 
     @property
-    def barrier_potential(self, x0=0.46, x1=0.56, de=4500):
+    def barrier_potential(self, x0=0.46, x1=0.56, de=1200):
         x = np.linspace(0,1,500)
         potential = np.zeros_like(x)
         potential[np.where((x>=x0)&(x<=x1))] = de

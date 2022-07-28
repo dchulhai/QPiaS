@@ -18,13 +18,13 @@ def title_screen(game):
     def resize(game):
         # get the perfect font size
         size = int(40 * min(game.width, game.height) / 600.)
-        font = pygame.font.Font(game.resource_path('fonts/chintzy.ttf'), size)
+        font = pygame.font.Font(game._resource_path('fonts/chintzy.ttf'), size)
         word = font.render(' SANDBOX ', True, color)
         word_width, word_height = word.get_size()
 #        size = min(game.height/(9*word_height), game.width/word_width)
         size = int(40 * min(game.width, game.height) / 600. *
                 min(game.height/(9*word_height), game.width/word_width))
-        font = pygame.font.Font(game.resource_path('fonts/chintzy.ttf'), size)
+        font = pygame.font.Font(game._resource_path('fonts/chintzy.ttf'), size)
     
         # get the origin point for each word and letter
         word_origins = []
@@ -48,7 +48,7 @@ def title_screen(game):
             letter_origins.append(letter_origin_x)
 
         # get a smaller font size
-        font_small = pygame.font.Font(game.resource_path('fonts/chintzy.ttf'),
+        font_small = pygame.font.Font(game._resource_path('fonts/chintzy.ttf'),
             int(size/3))
         instruction = font_small.render('Press any key to continue...',
             True, (235,235,165))

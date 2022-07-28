@@ -2,9 +2,17 @@ import numpy as np
 import pygame
 
 class Buttons():
+    """Store the information necessary to generate clickable menu buttons.
+
+    :param game: A QPiaS Game object
+    :type game: :class:`qpias.game.Game`
+
+    """
+
     def __init__(self, game, texts, font=None,
             text_color=(255,255,255), highlight_color=(225,225,100),
             show=None, hidden_text_color=(100,100,100)):
+        """Initialize the Buttons class."""
 
         self.game = game
         self.texts = texts
