@@ -65,7 +65,7 @@ def lvl_quanta(game):
         level_options = ['ESC', 'LEFT', 'RIGHT', 'UP', 'DOWN', 'G']
 
         events = [('TIME', 0, ["This time, try to collapse the energy "
-                               "to the new green region "]),
+                               "to the new green region."]),
                   ('UP', 5, ["Did you skip past it?"]),
                   ('UP', 1, ["Notice that you cannot match exactly "
                              "that energy! This is because the particle "
@@ -148,7 +148,7 @@ def lvl_box_length(game):
                                "photons do you need to absorb to get to the "
                                "required energy?"])]
 
-        stage = Stage(game, None, initial_conditions={'length': 0.8, 'emax': 400},
+        stage = Stage(game, None, initial_conditions={'length': 1.0, 'emax': 400},
             goal={'energy': [200,300]}, level_options=level_options, events=events)
         sublevel_completed = stage.run()
         if sublevel_completed: game._levels_completed['LENGTH'] += 1
