@@ -15,6 +15,7 @@ Citation
 Use the following to cite this code:
 
 - Chulhai, D. V. QPiaS: Quantum Particle-in-a-Sandbox. https://github.com/dchulhai/QPiaS, 2021.
+- Chulhai, D. V. *ChemRxiv* **2022**. DOI: `10.26434/chemrxiv-2022-7fkzw <https://doi.org/10.26434/chemrxiv-2022-7fkzw>`_
 
 Installing and Running QPiaS
 ============================
