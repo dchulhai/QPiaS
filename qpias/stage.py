@@ -306,8 +306,9 @@ class Stage():
                     game.screen.fill((255,255,255)) 
 
                 # check key events
-                if event.type == KEYDOWN or event.type == pygame.MOUSEBUTTONUP:
-                    show_text = False
+                if event.type == KEYDOWN:
+                    if event.key == pygame.K_RETURN or event.key == pygame.K_KP_ENTER:
+                        show_text = False
 
             # get popup size and location
             dimensions = (game.width * 0.05, game.height * 0.35,
@@ -346,8 +347,8 @@ class Stage():
             bottom_bar = pygame.draw.rect(game.screen, (255,255,255),
                 (0, game.height*0.9, game.width, game.height*0.1))
 
-            # add "press any key to continue" at the bottom
-            word_surface = game.text_font.render('Press any key to continue...', True,
+            # add "press ENTER key to continue" at the bottom
+            word_surface = game.text_font.render('Press ENTER key to continue...', True,
                 (0,0,0))
             word_width, word_height = word_surface.get_size()
             game.screen.blit(word_surface, (game.width*0.05,
