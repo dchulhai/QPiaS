@@ -138,7 +138,7 @@ def about_menu(game):
                     "quantum mechanical wave function.\n\n"
                     "Quantum Particle-in-a-Sandbox was developed by Dhabih "
                     "V. Chulhai (chulhaid@uindy.edu) (c) 2022 and "
-                    "may be used according to the Apache License v 2.0")
+                    "may be used according to the GNU/GPL v3 License.")
 
     instruction_text1 = ("Press [ESC] to return to the previous screen "
                          "or press any other key for more instruction.")

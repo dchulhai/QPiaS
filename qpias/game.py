@@ -77,7 +77,7 @@ class Game():
         self.text_font = pygame.font.Font(self._resource_path('fonts/ccr.ttf'),
                 self.text_font_size)
         self.top_bar_font = pygame.font.Font(
-                self._resource_path('fonts/instruction.ttf'),
+                self._resource_path('fonts/instruction2.otf'),
                 self.top_bar_font_size)
 
         # set up game timer
@@ -110,7 +110,8 @@ class Game():
 
         # ADVENTURE MODE SPECIFIC VARIABLES
         self._level_reset()
-        self._show_levels = [True] * 1 + [False] * 4 + [True]
+#        self._show_levels = [True] * 1 + [False] * 4 + [True]
+        self._show_levels = [True] * 6 # DEBUG
         self._levels_available = 1
         self._levels_completed = {'QUANTA': 0,
                                   'LENGTH': 0,
@@ -332,37 +333,40 @@ class Game():
 
         # print energy
         if energy is None:
-            text = 'Energy = ???'
+            text = 'Energy               =      ???'
         else:
-            text = 'Energy = {0:>8.1f}'.format(energy)
+            text = ('Energy               = {0:>8.1f}'.format(energy)
+                   + ' hbar^2/(m L^2)')
         text_surf = self.top_bar_font.render(text, True, (0,0,0))
         self.screen.blit(text_surf, (self.top_bar_x, self.top_bar_locations[0]))
 
         # print average energy
-        text = 'Average energy = {0:>8.1f}'.format(average_energy)
+        text = ('Average Energy       = {0:>8.1f}'.format(average_energy)
+               + ' hbar^2/(m L^2)')
         text_surf = self.top_bar_font.render(text, True, (0,0,0))
         self.screen.blit(text_surf, (self.top_bar_x, self.top_bar_locations[1]))
 
         # print average position
-        text = 'Average position = {0:>5.3f}'.format(self.__average_position
-            / particle.length)
+        text = ('Average Position     =    {0:>5.3f}'.format(self.__average_position
+            / particle.length) + ' L')
         text_surf = self.top_bar_font.render(text, True, (0,0,0))
         self.screen.blit(text_surf, (self.top_bar_x, self.top_bar_locations[2]))
 
         # print position uncertainty
-        text = 'Position uncertainty = +/- {0:>4.2f}'.format(self.__position_uncertainty
-            / particle.length)
+        text = ('Position Uncertainty = +/- {0:>4.2f}'.format(
+                self.__position_uncertainty/ particle.length) + ' L')
         text_surf = self.top_bar_font.render(text, True, (0,0,0))
         self.screen.blit(text_surf, (self.top_bar_x, self.top_bar_locations[3]))
 
         # print average momentum
-        text = 'Average momentum = {0:>+5.0f}'.format(self.__average_momentum)
+        text = ('Average Momentum     =   {0:>+6.1f}'.format(self.__average_momentum)
+               + ' hbar/L')
         text_surf = self.top_bar_font.render(text, True, (0,0,0))
         self.screen.blit(text_surf, (self.top_bar_x, self.top_bar_locations[4]))
 
         # print momentum uncertainty
-        text = 'Momentum uncertainty = +/- {0:>2.0f}'.format(
-            self.__momentum_uncertainty)
+        text = ('Momentum Uncertainty = +/- {0:>4.1f}'.format(
+            self.__momentum_uncertainty) + ' hbar/L')
         text_surf = self.top_bar_font.render(text, True, (0,0,0))
         self.screen.blit(text_surf, (self.top_bar_x, self.top_bar_locations[5]))
 
@@ -472,7 +476,7 @@ class Game():
         self.text_font = pygame.font.Font(self._resource_path('fonts/ccr.ttf'),
                 self.text_font_size)
         self.top_bar_font = pygame.font.Font(
-                self._resource_path('fonts/instruction.ttf'), self.top_bar_font_size)
+                self._resource_path('fonts/instruction2.otf'), self.top_bar_font_size)
 
         # get button sizes
         size = int(min(self.height*0.09, self.width/12))
