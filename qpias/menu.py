@@ -137,7 +137,7 @@ def about_menu(game):
                     "you explore what happens to a 1-dimensional "
                     "quantum mechanical wave function.\n\n"
                     "Quantum Particle-in-a-Sandbox was developed by Dhabih "
-                    "V. Chulhai (chulhaid@uindy.edu) (c) 2022 and "
+                    "V. Chulhai (CHULHAID@UINDY.EDU) (c) 2022 and "
                     "may be used according to the GNU/GPL v3 License.")
 
     instruction_text1 = ("Press [ESC] to return to the previous screen "
